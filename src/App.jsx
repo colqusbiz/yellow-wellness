@@ -292,7 +292,7 @@ export default function App() {
               <span className="photo-caption">Premium oils &amp; blends</span>
             </div>
             <div className="photo-strip-item">
-              <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Relaxation" />
+              <img src="https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=700&q=80" alt="Relaxation" />
               <span className="photo-caption">Pure relaxation</span>
             </div>
           </div>
