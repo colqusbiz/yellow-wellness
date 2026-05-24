@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
@@ -11,7 +11,6 @@ const style = `
     --warm: #fef9d7;
     --gold: #c9a800;
     --gold-light: #f0cc00;
-    --gold-pale: #fef7c3;
     --stone: #7a7050;
     --rust: #b07d00;
     --bg: #0f0d00;
@@ -74,10 +73,7 @@ const style = `
   .section-desc { color: var(--stone); font-size: 0.95rem; line-height: 1.8; max-width: 580px; font-weight: 300; }
 
   .services-category { margin-bottom: 4rem; }
-  .services-category-label {
-    font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase;
-    color: var(--gold-light); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;
-  }
+  .services-category-label { font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
   .services-category-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,168,0,0.2); }
 
   .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5px; background: rgba(201,168,0,0.1); }
@@ -91,7 +87,6 @@ const style = `
   .price-row { display: flex; justify-content: space-between; align-items: baseline; }
   .price-duration { font-size: 0.78rem; color: var(--stone); font-weight: 300; }
   .price-amount { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--gold); }
-  .service-note { font-size: 0.72rem; color: rgba(201,168,0,0.6); margin-top: 0.8rem; font-style: italic; border-top: 1px solid rgba(201,168,0,0.1); padding-top: 0.8rem; }
   .addon-tag { display: inline-block; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; background: rgba(201,168,0,0.12); color: var(--gold); padding: 0.25rem 0.6rem; margin-bottom: 0.8rem; }
 
   .about-strip { background: #0d0b00; border-top: 1px solid rgba(201,168,0,0.1); border-bottom: 1px solid rgba(201,168,0,0.1); padding: 5rem 2rem; }
@@ -99,8 +94,8 @@ const style = `
   @media (max-width: 768px) { .about-inner { grid-template-columns: 1fr; } }
   .about-num { font-family: 'Cormorant Garamond', serif; font-size: clamp(5rem, 12vw, 9rem); color: rgba(201,168,0,0.1); line-height: 1; user-select: none; }
 
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
-  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+  .booking-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  @media (max-width: 900px) { .booking-layout { grid-template-columns: 1fr; } }
 
   .form-group { margin-bottom: 1.5rem; }
   .form-group label { display: block; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
@@ -118,6 +113,10 @@ const style = `
   .policy-box strong { color: var(--cream); display: block; margin-bottom: 0.3rem; }
   .success-msg { background: rgba(201,168,0,0.08); border: 1px solid rgba(201,168,0,0.3); padding: 1.2rem 1.5rem; font-size: 0.85rem; color: var(--gold-light); line-height: 1.6; margin-top: 1rem; }
 
+  .calendly-section { margin-top: 3rem; }
+  .calendly-section-label { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; display: block; }
+  .calendly-wrap { border: 1px solid rgba(201,168,0,0.2); overflow: hidden; background: #fff; }
+
   .faq-list { margin-top: 3rem; }
   .faq-item { border-bottom: 1px solid rgba(201,168,0,0.12); }
   .faq-question { width: 100%; background: none; border: none; color: var(--cream); text-align: left; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; padding: 1.4rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: color 0.3s; }
@@ -127,6 +126,22 @@ const style = `
   .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s; }
   .faq-answer.open { max-height: 300px; padding-bottom: 1.4rem; }
   .faq-answer p { font-size: 0.88rem; color: var(--stone); line-height: 1.8; font-weight: 300; }
+
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  @media (max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
+
+  .contact-detail { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.82rem; color: var(--stone); }
+  .contact-icon { font-size: 1.1rem; }
+
+  .whatsapp-btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: #25D366; color: #fff;
+    padding: 0.75rem 1.5rem; margin-top: 1rem;
+    font-family: 'Jost', sans-serif; font-size: 0.75rem;
+    letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;
+    text-decoration: none; transition: background 0.3s, transform 0.2s;
+  }
+  .whatsapp-btn:hover { background: #1ebe5d; transform: translateY(-2px); }
 
   footer { border-top: 1px solid rgba(201,168,0,0.1); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.7rem; color: var(--stone); letter-spacing: 0.1em; }
 
@@ -141,41 +156,16 @@ const style = `
 
 const SERVICES = {
   fullBody: [
-    {
-      name: "Aromatherapy Massage",
-      desc: "A deeply relaxing treatment using a personalised blend of essential oils to ease tension, lift mood, and restore balance. Tailored to your emotional and physical needs.",
-      prices: [{ duration: "60 min", amount: "£40" }, { duration: "90 min", amount: "£60" }],
-    },
-    {
-      name: "Swedish Massage",
-      desc: "The classic full-body massage using long, flowing strokes to improve circulation, ease muscle tension, and encourage deep relaxation throughout the whole body.",
-      prices: [{ duration: "60 min", amount: "£40" }, { duration: "90 min", amount: "£60" }],
-    },
-    {
-      name: "Deep Tissue Massage",
-      desc: "A firmer, targeted treatment that works into the deeper layers of muscle to release chronic tension, break down knots, and address persistent areas of discomfort.",
-      prices: [{ duration: "60 min", amount: "£50" }, { duration: "90 min", amount: "£75" }],
-    },
+    { name: "Aromatherapy Massage", desc: "A deeply relaxing treatment using a personalised blend of essential oils to ease tension, lift mood, and restore balance. Tailored to your emotional and physical needs.", prices: [{ duration: "60 min", amount: "£40" }, { duration: "90 min", amount: "£60" }] },
+    { name: "Swedish Massage", desc: "The classic full-body massage using long, flowing strokes to improve circulation, ease muscle tension, and encourage deep relaxation throughout the whole body.", prices: [{ duration: "60 min", amount: "£40" }, { duration: "90 min", amount: "£60" }] },
+    { name: "Deep Tissue Massage", desc: "A firmer, targeted treatment that works into the deeper layers of muscle to release chronic tension, break down knots, and address persistent areas of discomfort.", prices: [{ duration: "60 min", amount: "£50" }, { duration: "90 min", amount: "£75" }] },
   ],
   backNeckShoulder: [
-    {
-      name: "Swedish Massage",
-      desc: "Gentle, flowing strokes focused on the back, neck and shoulders — ideal for stress relief, improving circulation, and releasing everyday tension.",
-      prices: [{ duration: "30 min", amount: "£30" }, { duration: "60 min", amount: "£45" }],
-    },
-    {
-      name: "Deep Tissue Massage",
-      desc: "Targeted deep pressure work on the back, neck and shoulders to release stubborn knots, reduce chronic tension, and restore ease of movement.",
-      prices: [{ duration: "30 min", amount: "£35" }, { duration: "60 min", amount: "£50" }],
-    },
+    { name: "Swedish Massage", desc: "Gentle, flowing strokes focused on the back, neck and shoulders — ideal for stress relief, improving circulation, and releasing everyday tension.", prices: [{ duration: "30 min", amount: "£30" }, { duration: "60 min", amount: "£45" }] },
+    { name: "Deep Tissue Massage", desc: "Targeted deep pressure work on the back, neck and shoulders to release stubborn knots, reduce chronic tension, and restore ease of movement.", prices: [{ duration: "30 min", amount: "£35" }, { duration: "60 min", amount: "£50" }] },
   ],
   addOn: [
-    {
-      name: "Foot Reflexology",
-      desc: "A therapeutic foot treatment that works on reflex points to promote whole-body relaxation, improve circulation, and complement your massage session.",
-      prices: [{ duration: "15 min", amount: "£15" }, { duration: "30 min", amount: "£30" }],
-      isAddon: true,
-    },
+    { name: "Foot Reflexology", desc: "A therapeutic foot treatment that works on reflex points to promote whole-body relaxation, improve circulation, and complement your massage session.", prices: [{ duration: "15 min", amount: "£15" }, { duration: "30 min", amount: "£30" }], isAddon: true },
   ],
 };
 
@@ -191,28 +181,42 @@ const FAQS = [
   { q: "Do I need to bring anything?", a: "Nothing — we provide everything you need including fresh towels and linens. Just arrive in comfortable, loose clothing and take a few minutes to relax before your session begins." },
 ];
 
-const ALL_SERVICES = [
-  ...SERVICES.fullBody.map(s => s.name + " (Full Body)"),
-  ...SERVICES.backNeckShoulder.map(s => s.name + " (Back, Neck & Shoulder)"),
-  "Foot Reflexology Add-On (15 min)",
-  "Foot Reflexology Add-On (30 min)",
-];
+const ServiceCard = ({ service, isAddon }) => (
+  <div className="service-card">
+    {isAddon && <span className="addon-tag">Add-On</span>}
+    <h3>{service.name}</h3>
+    <p>{service.desc}</p>
+    <div className="price-rows">
+      {service.prices.map((p, i) => (
+        <div className="price-row" key={i}>
+          <span className="price-duration">{p.duration}</span>
+          <span className="price-amount">{p.amount}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export default function App() {
   const [openFaq, setOpenFaq] = useState(null);
-  const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", service: "", date: "", time: "", allergies: "", conditions: "", agreePolicy: false, agreeScope: false });
+  const [consultForm, setConsultForm] = useState({ name: "", email: "", phone: "", allergies: "", conditions: "", agreePolicy: false, agreeScope: false });
+  const [consultDone, setConsultDone] = useState(false);
+  const [consultError, setConsultError] = useState("");
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
-  const [bookingDone, setBookingDone] = useState(false);
   const [contactDone, setContactDone] = useState(false);
-  const [bookingError, setBookingError] = useState("");
 
-  const updateBooking = (k, v) => setBookingForm(f => ({ ...f, [k]: v }));
+  const updateConsult = (k, v) => setConsultForm(f => ({ ...f, [k]: v }));
   const updateContact = (k, v) => setContactForm(f => ({ ...f, [k]: v }));
 
-  const handleBooking = () => {
-    if (!bookingForm.name || !bookingForm.email || !bookingForm.service || !bookingForm.date) { setBookingError("Please fill in all required fields."); return; }
-    if (!bookingForm.agreePolicy || !bookingForm.agreeScope) { setBookingError("Please confirm both policy acknowledgements before booking."); return; }
-    setBookingError(""); setBookingDone(true);
+  const handleConsult = () => {
+    if (!consultForm.name || !consultForm.email) { setConsultError("Please fill in your name and email."); return; }
+    if (!consultForm.agreePolicy || !consultForm.agreeScope) { setConsultError("Please confirm both policy acknowledgements to continue."); return; }
+    setConsultError("");
+    setConsultDone(true);
+    setTimeout(() => {
+      const el = document.getElementById("calendly-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 300);
   };
 
   const handleContact = () => {
@@ -220,22 +224,14 @@ export default function App() {
     setContactDone(true);
   };
 
-  const ServiceCard = ({ service, isAddon }) => (
-    <div className="service-card">
-      {isAddon && <span className="addon-tag">Add-On</span>}
-      <h3>{service.name}</h3>
-      <p>{service.desc}</p>
-      <div className="price-rows">
-        {service.prices.map((p, i) => (
-          <div className="price-row" key={i}>
-            <span className="price-duration">{p.duration}</span>
-            <span className="price-amount">{p.amount}</span>
-          </div>
-        ))}
-      </div>
-      {service.note && <div className="service-note">{service.note}</div>}
-    </div>
-  );
+  useEffect(() => {
+    if (consultDone) {
+      const script = document.createElement("script");
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, [consultDone]);
 
   return (
     <>
@@ -270,33 +266,29 @@ export default function App() {
         </div>
         <div className="photo-strip-item">
           <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=900&q=80" alt="Essential oils" />
-          <span className="photo-caption">Premium oils & blends</span>
+          <span className="photo-caption">Premium oils &amp; blends</span>
         </div>
       </div>
 
       <section id="services">
         <span className="section-label">What We Offer</span>
         <h2 className="section-title">Our Treatments</h2>
-        <p className="section-desc">Every session is tailored to you. All full body treatments are available to female clients. Back, neck and shoulder treatments are open to everyone.</p>
+        <p className="section-desc">Every session is tailored to you. Full body treatments are available to female clients. Back, neck and shoulder treatments are open to everyone.</p>
 
         <div className="services-category">
           <div className="services-category-label">Full Body Treatments — Female Clients</div>
-          <div className="services-grid">
-            {SERVICES.fullBody.map((s, i) => <ServiceCard key={i} service={s} />)}
-          </div>
+          <div className="services-grid">{SERVICES.fullBody.map((s, i) => <ServiceCard key={i} service={s} />)}</div>
         </div>
 
         <div className="services-category">
           <div className="services-category-label">Back, Neck &amp; Shoulder — All Clients</div>
-          <div className="services-grid">
-            {SERVICES.backNeckShoulder.map((s, i) => <ServiceCard key={i} service={s} />)}
-          </div>
+          <div className="services-grid">{SERVICES.backNeckShoulder.map((s, i) => <ServiceCard key={i} service={s} />)}</div>
         </div>
 
         <div className="services-category">
           <div className="services-category-label">Enhancements &amp; Add-Ons</div>
           <div className="services-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 400px))" }}>
-            {SERVICES.addOn.map((s, i) => <ServiceCard key={i} service={s} isAddon />)}
+            {SERVICES.addOn.map((s, i) => <ServiceCard key={i} service={s} isAddon={s.isAddon} />)}
           </div>
         </div>
       </section>
@@ -334,44 +326,21 @@ export default function App() {
       </div>
 
       <section id="booking">
-        <div className="two-col">
+        <span className="section-label">Reserve Your Time</span>
+        <h2 className="section-title">Book a Session</h2>
+        <p className="section-desc" style={{ marginBottom: "3rem" }}>Complete your consultation below, then pick your appointment slot. All information is confidential.</p>
+
+        <div className="booking-layout">
           <div>
-            <span className="section-label">Reserve Your Time</span>
-            <h2 className="section-title">Book a Session</h2>
-            <p className="section-desc" style={{ marginBottom: "2rem" }}>Complete the short consultation below. All information is confidential and used only to prepare your treatment.</p>
-            {!bookingDone ? (
+            <span className="section-label" style={{ marginBottom: "1.5rem", display: "block" }}>Step 1 — Your Details &amp; Consultation</span>
+
+            {!consultDone ? (
               <>
-                <div className="form-group"><label>Full Name *</label><input value={bookingForm.name} onChange={e => updateBooking("name", e.target.value)} placeholder="Your name" /></div>
-                <div className="form-group"><label>Email Address *</label><input type="email" value={bookingForm.email} onChange={e => updateBooking("email", e.target.value)} placeholder="email@example.com" /></div>
-                <div className="form-group"><label>Phone Number</label><input value={bookingForm.phone} onChange={e => updateBooking("phone", e.target.value)} placeholder="+44 ..." /></div>
-                <div className="form-group">
-                  <label>Select Treatment *</label>
-                  <select value={bookingForm.service} onChange={e => updateBooking("service", e.target.value)}>
-                    <option value="">— Choose a service —</option>
-                    <optgroup label="Full Body — Female Clients">
-                      <option>Aromatherapy Massage — 60 min £40</option>
-                      <option>Aromatherapy Massage — 90 min £60</option>
-                      <option>Swedish Massage (Full Body) — 60 min £40</option>
-                      <option>Swedish Massage (Full Body) — 90 min £60</option>
-                      <option>Deep Tissue (Full Body) — 60 min £50</option>
-                      <option>Deep Tissue (Full Body) — 90 min £75</option>
-                    </optgroup>
-                    <optgroup label="Back, Neck & Shoulder — All Clients">
-                      <option>Swedish Massage (Back, Neck & Shoulder) — 30 min £30</option>
-                      <option>Swedish Massage (Back, Neck & Shoulder) — 60 min £45</option>
-                      <option>Deep Tissue (Back, Neck & Shoulder) — 30 min £35</option>
-                      <option>Deep Tissue (Back, Neck & Shoulder) — 60 min £50</option>
-                    </optgroup>
-                    <optgroup label="Add-Ons">
-                      <option>Foot Reflexology Add-On — 15 min £15</option>
-                      <option>Foot Reflexology Add-On — 30 min £30</option>
-                    </optgroup>
-                  </select>
-                </div>
-                <div className="form-group"><label>Preferred Date *</label><input type="date" value={bookingForm.date} onChange={e => updateBooking("date", e.target.value)} /></div>
-                <div className="form-group"><label>Preferred Time</label><input type="time" value={bookingForm.time} onChange={e => updateBooking("time", e.target.value)} /></div>
-                <div className="form-group"><label>Known Allergies (oils, scents, latex)</label><input value={bookingForm.allergies} onChange={e => updateBooking("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, none" /></div>
-                <div className="form-group"><label>Relevant Health Conditions</label><textarea value={bookingForm.conditions} onChange={e => updateBooking("conditions", e.target.value)} placeholder="e.g. back injury, skin conditions, blood pressure, pregnancy..." /></div>
+                <div className="form-group"><label>Full Name *</label><input value={consultForm.name} onChange={e => updateConsult("name", e.target.value)} placeholder="Your name" /></div>
+                <div className="form-group"><label>Email Address *</label><input type="email" value={consultForm.email} onChange={e => updateConsult("email", e.target.value)} placeholder="email@example.com" /></div>
+                <div className="form-group"><label>Phone Number</label><input value={consultForm.phone} onChange={e => updateConsult("phone", e.target.value)} placeholder="+44 ..." /></div>
+                <div className="form-group"><label>Known Allergies (oils, scents, latex)</label><input value={consultForm.allergies} onChange={e => updateConsult("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, none" /></div>
+                <div className="form-group"><label>Relevant Health Conditions</label><textarea value={consultForm.conditions} onChange={e => updateConsult("conditions", e.target.value)} placeholder="e.g. back injury, skin conditions, blood pressure, pregnancy..." /></div>
                 <div className="policy-box">
                   <strong>Service Scope &amp; Professional Standards</strong>
                   Yellow Wellness provides therapeutic massage services only. All sessions are strictly non-sexual in nature. Any behaviour or request that falls outside the agreed service scope will result in immediate termination of the session. Full payment is required regardless of early termination due to policy breach.
@@ -379,43 +348,71 @@ export default function App() {
                 <div className="form-group">
                   <div className="checkbox-group">
                     <div className="checkbox-item">
-                      <input type="checkbox" checked={bookingForm.agreePolicy} onChange={e => updateBooking("agreePolicy", e.target.checked)} />
-                      <span>I confirm the health and allergy information I have provided is accurate, and I understand it will be used to personalise my treatment safely.</span>
+                      <input type="checkbox" checked={consultForm.agreePolicy} onChange={e => updateConsult("agreePolicy", e.target.checked)} />
+                      <span>I confirm the health and allergy information I have provided is accurate and may be used to tailor my treatment safely.</span>
                     </div>
                     <div className="checkbox-item">
-                      <input type="checkbox" checked={bookingForm.agreeScope} onChange={e => updateBooking("agreeScope", e.target.checked)} />
-                      <span>I have read and agree to the service scope policy above. I understand this is a strictly therapeutic practice and any inappropriate conduct will result in immediate session termination at full charge.</span>
+                      <input type="checkbox" checked={consultForm.agreeScope} onChange={e => updateConsult("agreeScope", e.target.checked)} />
+                      <span>I have read and agree to the service scope policy above. I understand this is a strictly therapeutic practice.</span>
                     </div>
                   </div>
                 </div>
-                {bookingError && <p style={{ color: "#c0614a", fontSize: "0.8rem", marginBottom: "1rem" }}>{bookingError}</p>}
-                <button className="btn-gold" onClick={handleBooking}>Confirm Booking Request</button>
+                {consultError && <p style={{ color: "#c0614a", fontSize: "0.8rem", marginBottom: "1rem" }}>{consultError}</p>}
+                <button className="btn-gold" onClick={handleConsult}>Continue to Book →</button>
               </>
             ) : (
-              <div className="success-msg">✓ &nbsp; Thank you, {bookingForm.name}. Your booking request has been received. We will confirm your appointment at <strong>{bookingForm.email}</strong> within 24 hours.</div>
+              <div className="success-msg">✓ &nbsp; Thank you, {consultForm.name}. Your consultation details have been saved. Please choose your appointment below.</div>
             )}
           </div>
 
-          <div id="contact">
-            <span className="section-label">Get in Touch</span>
-            <h2 className="section-title">Contact Us</h2>
-            <p className="section-desc" style={{ marginBottom: "2rem" }}>Have a question before booking? Send us a message and we will get back to you promptly.</p>
-            {!contactDone ? (
-              <>
-                <div className="form-group"><label>Your Name</label><input value={contactForm.name} onChange={e => updateContact("name", e.target.value)} placeholder="Name" /></div>
-                <div className="form-group"><label>Email Address</label><input type="email" value={contactForm.email} onChange={e => updateContact("email", e.target.value)} placeholder="email@example.com" /></div>
-                <div className="form-group"><label>Message</label><textarea rows={6} value={contactForm.message} onChange={e => updateContact("message", e.target.value)} placeholder="Your question or message..." /></div>
-                <button className="btn-gold" onClick={handleContact}>Send Message</button>
-              </>
+          <div id="calendly-section">
+            <span className="section-label" style={{ marginBottom: "1.5rem", display: "block" }}>Step 2 — Choose Your Appointment</span>
+            {!consultDone ? (
+              <div style={{ padding: "2rem", border: "1px solid rgba(201,168,0,0.15)", color: "var(--stone)", fontSize: "0.85rem", lineHeight: "1.7" }}>
+                Complete Step 1 first to unlock the booking calendar.
+              </div>
             ) : (
-              <div className="success-msg">✓ &nbsp; Message received. We will be in touch shortly at {contactForm.email}.</div>
+              <div className="calendly-wrap">
+                <div
+                  className="calendly-inline-widget"
+                  data-url="https://calendly.com/colqus-biz?hide_gdpr_banner=1&primary_color=c9a800"
+                  style={{ minWidth: "320px", height: "700px" }}
+                />
+              </div>
             )}
-            <div style={{ marginTop: "3rem", borderTop: "1px solid rgba(201,168,0,0.12)", paddingTop: "2rem" }}>
-              <p style={{ fontSize: "0.75rem", color: "var(--stone)", lineHeight: "2", letterSpacing: "0.05em" }}>
-                📍 &nbsp; Wolverhampton (Exact address provided upon booking)<br />
-                📧 &nbsp; hello@yellowwellness.co.uk<br />
-                📞 &nbsp; Available Mon–Sat, 9am–7pm
-              </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" style={{ background: "#0d0b00", maxWidth: "100%", padding: "6rem 2rem" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div className="contact-grid">
+            <div>
+              <span className="section-label">Get in Touch</span>
+              <h2 className="section-title">Contact Us</h2>
+              <p className="section-desc" style={{ marginBottom: "2rem" }}>Have a question before booking? We'd love to hear from you.</p>
+
+              <div className="contact-detail"><span className="contact-icon">📍</span> Wolverhampton (address provided upon booking)</div>
+              <div className="contact-detail"><span className="contact-icon">📧</span> hello@yellowwellness.co.uk</div>
+              <div className="contact-detail"><span className="contact-icon">📞</span> Available daily, 11am–8pm</div>
+
+              <a href="https://wa.me/447401722262" className="whatsapp-btn" target="_blank" rel="noopener noreferrer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Chat on WhatsApp
+              </a>
+            </div>
+
+            <div>
+              {!contactDone ? (
+                <>
+                  <div className="form-group"><label>Your Name</label><input value={contactForm.name} onChange={e => updateContact("name", e.target.value)} placeholder="Name" /></div>
+                  <div className="form-group"><label>Email Address</label><input type="email" value={contactForm.email} onChange={e => updateContact("email", e.target.value)} placeholder="email@example.com" /></div>
+                  <div className="form-group"><label>Message</label><textarea rows={6} value={contactForm.message} onChange={e => updateContact("message", e.target.value)} placeholder="Your question or message..." /></div>
+                  <button className="btn-gold" onClick={handleContact}>Send Message</button>
+                </>
+              ) : (
+                <div className="success-msg">✓ &nbsp; Message received. We will be in touch shortly at {contactForm.email}.</div>
+              )}
             </div>
           </div>
         </div>
