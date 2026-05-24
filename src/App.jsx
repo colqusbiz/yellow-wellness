@@ -335,4 +335,165 @@ export default function App() {
   const updateContact = (k, v) => setContactForm(f => ({ ...f, [k]: v }));
 
   const handleBooking = () => {
-    if (!bookingForm.name || !bookingForm.email || !bookingForm.service || !bookingForm.date) { setBookingError("Please fill in all required fields.");
+    if (!bookingForm.name || !bookingForm.email || !bookingForm.service || !bookingForm.date) { setBookingError("Please fill in all required fields."); return; }
+    if (!bookingForm.agreePolicy || !bookingForm.agreeScope) { setBookingError("Please confirm both policy acknowledgements before booking."); return; }
+    setBookingError(""); setBookingDone(true);
+  };
+
+  const handleContact = () => {
+    if (!contactForm.name || !contactForm.email || !contactForm.message) return;
+    setContactDone(true);
+  };
+
+  return (
+    <>
+      <style>{style}</style>
+      <nav>
+        <div className="logo">Yellow Wellness</div>
+        <ul className="nav-links">
+          <li><a href="#services">Services</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#booking">Book Now</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div className="hero">
+        <span className="hero-eyebrow">In-Home Massage Therapy · London, UK</span>
+        <h1>Restore.<br /><em>Revive.</em><br />Renew.</h1>
+        <p className="hero-sub">Professional massage therapy in a calm, private setting — tailored to your body and your boundaries.</p>
+        <div className="hero-cta">
+          <a href="#booking" className="btn-gold">Book a Session</a>
+          <a href="#services" className="btn-outline">View Services</a>
+        </div>
+      </div>
+
+      <section id="services">
+        <span className="section-label">What We Offer</span>
+        <h2 className="section-title">Our Treatments</h2>
+        <p className="section-desc">Every session is professional, respectful, and clearly scoped. We believe in transparency — so all treatment boundaries are communicated upfront.</p>
+        <div className="services-grid">
+          {SERVICES.map((s, i) => (
+            <div className="service-card" key={i}>
+              <span className="service-tag">{s.tag}</span>
+              <h3>{s.name}</h3>
+              <p>{s.desc}</p>
+              <div className="service-price">{s.price} <span>/ {s.duration}</span></div>
+              {s.note && <div className="service-note">⚠ {s.note}</div>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="about-strip" id="about">
+        <div className="about-inner">
+          <div className="about-num">✦</div>
+          <div>
+            <span className="section-label">Our Promise</span>
+            <h2 className="section-title" style={{ maxWidth: 500 }}>Professional, safe, and always respectful</h2>
+            <p className="section-desc" style={{ marginTop: "1rem" }}>Yellow Wellness is a private, in-home practice built on trust. Every client completes a short pre-treatment consultation to ensure their safety and comfort. We work within clearly defined service scopes — no exceptions. This practice provides therapeutic massage only. Any request outside of the agreed service scope will result in immediate termination of the session at full charge.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#0c0906", borderTop: "1px solid rgba(184,150,90,0.1)" }} id="faq">
+        <section style={{ maxWidth: 800 }}>
+          <span className="section-label">Got Questions?</span>
+          <h2 className="section-title">Frequently Asked Questions</h2>
+          <p className="section-desc">Everything you need to know before your first session.</p>
+          <div className="faq-list">
+            {FAQS.map((faq, i) => (
+              <div className="faq-item" key={i}>
+                <button className="faq-question" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                  {faq.q}
+                  <span className={`faq-icon${openFaq === i ? " open" : ""}`}>+</span>
+                </button>
+                <div className={`faq-answer${openFaq === i ? " open" : ""}`}>
+                  <p>{faq.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <section id="booking">
+        <div className="two-col">
+          <div>
+            <span className="section-label">Reserve Your Time</span>
+            <h2 className="section-title">Book a Session</h2>
+            <p className="section-desc" style={{ marginBottom: "2rem" }}>Complete the short consultation below. All information is confidential and used only to prepare your treatment.</p>
+            {!bookingDone ? (
+              <>
+                <div className="form-group"><label>Full Name *</label><input value={bookingForm.name} onChange={e => updateBooking("name", e.target.value)} placeholder="Your name" /></div>
+                <div className="form-group"><label>Email Address *</label><input type="email" value={bookingForm.email} onChange={e => updateBooking("email", e.target.value)} placeholder="email@example.com" /></div>
+                <div className="form-group"><label>Phone Number</label><input value={bookingForm.phone} onChange={e => updateBooking("phone", e.target.value)} placeholder="+44 ..." /></div>
+                <div className="form-group">
+                  <label>Select Treatment *</label>
+                  <select value={bookingForm.service} onChange={e => updateBooking("service", e.target.value)}>
+                    <option value="">— Choose a service —</option>
+                    {SERVICES.map((s, i) => <option key={i} value={s.name}>{s.name} — {s.price}</option>)}
+                  </select>
+                </div>
+                <div className="form-group"><label>Preferred Date *</label><input type="date" value={bookingForm.date} onChange={e => updateBooking("date", e.target.value)} /></div>
+                <div className="form-group"><label>Preferred Time</label><input type="time" value={bookingForm.time} onChange={e => updateBooking("time", e.target.value)} /></div>
+                <div className="form-group"><label>Known Allergies (oils, scents, latex)</label><input value={bookingForm.allergies} onChange={e => updateBooking("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, none" /></div>
+                <div className="form-group"><label>Relevant Health Conditions</label><textarea value={bookingForm.conditions} onChange={e => updateBooking("conditions", e.target.value)} placeholder="e.g. back injury, skin conditions, blood pressure, pregnancy..." /></div>
+                <div className="policy-box">
+                  <strong>Service Scope & Professional Standards</strong>
+                  Yellow Wellness provides therapeutic massage services only. All sessions are non-sexual in nature. Any behaviour or request that falls outside the agreed service scope will result in immediate termination of the session. Full payment is required regardless of early termination due to policy breach.
+                </div>
+                <div className="form-group">
+                  <div className="checkbox-group">
+                    <div className="checkbox-item">
+                      <input type="checkbox" checked={bookingForm.agreePolicy} onChange={e => updateBooking("agreePolicy", e.target.checked)} />
+                      <span>I confirm the health and allergy information I have provided is accurate, and I understand it will be used to personalise my treatment safely.</span>
+                    </div>
+                    <div className="checkbox-item">
+                      <input type="checkbox" checked={bookingForm.agreeScope} onChange={e => updateBooking("agreeScope", e.target.checked)} />
+                      <span>I have read and agree to the service scope policy above. I understand this is a strictly therapeutic practice and any inappropriate conduct will result in immediate session termination at full charge.</span>
+                    </div>
+                  </div>
+                </div>
+                {bookingError && <p style={{ color: "#c0614a", fontSize: "0.8rem", marginBottom: "1rem" }}>{bookingError}</p>}
+                <button className="btn-gold" onClick={handleBooking}>Confirm Booking Request</button>
+              </>
+            ) : (
+              <div className="success-msg">✓ &nbsp; Thank you, {bookingForm.name}. Your booking request has been received. We'll confirm your appointment at <strong>{bookingForm.email}</strong> within 24 hours.</div>
+            )}
+          </div>
+
+          <div id="contact">
+            <span className="section-label">Get in Touch</span>
+            <h2 className="section-title">Contact Us</h2>
+            <p className="section-desc" style={{ marginBottom: "2rem" }}>Have a question before booking? Send us a message and we'll get back to you promptly.</p>
+            {!contactDone ? (
+              <>
+                <div className="form-group"><label>Your Name</label><input value={contactForm.name} onChange={e => updateContact("name", e.target.value)} placeholder="Name" /></div>
+                <div className="form-group"><label>Email Address</label><input type="email" value={contactForm.email} onChange={e => updateContact("email", e.target.value)} placeholder="email@example.com" /></div>
+                <div className="form-group"><label>Message</label><textarea rows={6} value={contactForm.message} onChange={e => updateContact("message", e.target.value)} placeholder="Your question or message..." /></div>
+                <button className="btn-gold" onClick={handleContact}>Send Message</button>
+              </>
+            ) : (
+              <div className="success-msg">✓ &nbsp; Message received. We'll be in touch shortly at {contactForm.email}.</div>
+            )}
+            <div style={{ marginTop: "3rem", borderTop: "1px solid rgba(184,150,90,0.15)", paddingTop: "2rem" }}>
+              <p style={{ fontSize: "0.75rem", color: "var(--stone)", lineHeight: "2", letterSpacing: "0.05em" }}>
+                📍 &nbsp; London, UK (Exact address provided upon booking)<br />
+                📧 &nbsp; hello@yellowwellness.co.uk<br />
+                📞 &nbsp; Available Mon–Sat, 9am–7pm
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", color: "var(--gold)", fontSize: "1rem" }}>Yellow Wellness</span>
+        <span>© 2025 · Professional Therapeutic Massage · London, UK</span>
+        <span>All services are strictly therapeutic in nature</span>
+      </footer>
+    </>
+  );
+}
