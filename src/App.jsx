@@ -217,40 +217,42 @@ const StarRating = ({ value, onChange }) => (
 
 export default function App() {
   const [page, setPage] = useState("home");
-  const [consultDone, setConsultDone] = useState(false);
-  const [consultForm, setConsultForm] = useState({ name: "", email: "", phone: "", allergies: "", conditions: "", agreePolicy: false, agreeScope: false });
-  const [consultError, setConsultError] = useState("");
+export default function App() {
+  const WA_NUMBER = "447394863714";
+  const [page, setPage] = useState("home");
+  const [bookingType, setBookingType] = useState(null);
+  const [newForm, setNewForm] = useState({ name: "", email: "", phone: "", treatment: "", datetime: "", pressure: "", areas: [], allergies: "", conditions: [], notes: "", agreeHealth: false, agreeTC: false });
+  const [retForm, setRetForm] = useState({ name: "", treatment: "", datetime: "", notes: "" });
+  const [newFormError, setNewFormError] = useState("");
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactDone, setContactDone] = useState(false);
   const [ratings, setRatings] = useState({ treatment: 0, therapist: 0, ambiance: 0, relaxed: 0, value: 0 });
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackDone, setFeedbackDone] = useState(false);
 
-  const updateConsult = (k, v) => setConsultForm(f => ({ ...f, [k]: v }));
+  const updateNew = (k, v) => setNewForm(f => ({ ...f, [k]: v }));
+  const updateRet = (k, v) => setRetForm(f => ({ ...f, [k]: v }));
   const updateContact = (k, v) => setContactForm(f => ({ ...f, [k]: v }));
-  const navigate = (p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const navigate = (p) => { setPage(p); setBookingType(null); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-  const handleConsult = () => {
-    if (!consultForm.name || !consultForm.email) { setConsultError("Please fill in your name and email."); return; }
-    if (!consultForm.agreePolicy || !consultForm.agreeScope) { setConsultError("Please confirm both acknowledgements to continue."); return; }
-    setConsultError(""); setConsultDone(true);
-    setTimeout(() => { const el = document.getElementById("calendly-step"); if (el) el.scrollIntoView({ behavior: "smooth" }); }, 300);
+  const validateNew = () => {
+    if (!newForm.name || !newForm.email || !newForm.treatment) { setNewFormError("Please fill in your name, email and preferred treatment."); return false; }
+    if (!newForm.agreeHealth || !newForm.agreeTC) { setNewFormError("Please confirm both acknowledgements before sending."); return false; }
+    setNewFormError(""); return true;
+  };
+
+  const buildWhatsAppNew = () => {
+    const msg = `*NEW CLIENT CONSULTATION — Yellow Wellness*\n\n*Name:* ${newForm.name}\n*Email:* ${newForm.email}\n*Phone:* ${newForm.phone || "Not provided"}\n*Treatment:* ${newForm.treatment}\n*Preferred Date/Time:* ${newForm.datetime || "Flexible"}\n*Pressure Preference:* ${newForm.pressure || "Not specified"}\n*Problem Areas:* ${newForm.areas.length ? newForm.areas.join(", ") : "None specified"}\n*Allergies:* ${newForm.allergies || "None"}\n*Health Conditions:* ${newForm.conditions.length ? newForm.conditions.join(", ") : "None"}\n*Additional Notes:* ${newForm.notes || "None"}\n\n✅ Health information confirmed accurate\n✅ Terms & Conditions agreed`;
+    return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const buildWhatsAppReturning = () => {
+    const msg = `*RETURNING CLIENT BOOKING — Yellow Wellness*\n\n*Name:* ${retForm.name}\n*Treatment:* ${retForm.treatment}\n*Preferred Date/Time:* ${retForm.datetime || "Flexible"}\n*Health Changes Since Last Visit:* ${retForm.notes || "None"}`;
+    return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   };
 
   const handleContact = () => { if (!contactForm.name || !contactForm.email || !contactForm.message) return; setContactDone(true); };
   const handleFeedback = () => { setFeedbackDone(true); };
-
-  useEffect(() => {
-    if (consultDone && page === "book") {
-      const existing = document.querySelector('script[src*="calendly"]');
-      if (!existing) {
-        const script = document.createElement("script");
-        script.src = "https://assets.calendly.com/assets/external/widget.js";
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    }
-  }, [consultDone, page]);
 
   return (
     <>
@@ -448,61 +450,175 @@ export default function App() {
           </div>
 
           <div className="booking-page">
-            <p className="section-desc" style={{ marginBottom: "1rem" }}>Complete your consultation first — then choose your appointment slot from the live calendar. All information is kept confidential.</p>
+            <p className="section-desc" style={{ marginBottom: "2.5rem" }}>
+              To book with Yellow Wellness, simply complete the form below and send it via WhatsApp. Sash will confirm your appointment within a few hours during business hours (11am–8pm daily).
+            </p>
 
-            <div className="booking-layout">
-              <div>
-                <span className="section-label" style={{ marginBottom: "1.5rem", display: "block" }}>Step 1 — Your Consultation</span>
-                {!consultDone ? (
-                  <>
-                    <div className="form-group"><label>Full Name *</label><input value={consultForm.name} onChange={e => updateConsult("name", e.target.value)} placeholder="Your name" /></div>
-                    <div className="form-group"><label>Email Address *</label><input type="email" value={consultForm.email} onChange={e => updateConsult("email", e.target.value)} placeholder="email@example.com" /></div>
-                    <div className="form-group"><label>Phone Number</label><input value={consultForm.phone} onChange={e => updateConsult("phone", e.target.value)} placeholder="+44 ..." /></div>
-                    <div className="form-group"><label>Known Allergies (oils, scents, latex)</label><input value={consultForm.allergies} onChange={e => updateConsult("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, none" /></div>
-                    <div className="form-group"><label>Relevant Health Conditions</label><textarea value={consultForm.conditions} onChange={e => updateConsult("conditions", e.target.value)} placeholder="e.g. back injury, skin conditions, blood pressure, pregnancy..." /></div>
-                    <div className="policy-box">
-                      <strong>Service Scope &amp; Professional Standards</strong>
-                      Yellow Wellness provides therapeutic massage services only. All sessions are strictly non-sexual in nature. Any behaviour or request outside the agreed scope will result in immediate termination of the session at full charge.
-                    </div>
-                    <div className="form-group">
-                      <div className="checkbox-group">
-                        <div className="checkbox-item">
-                          <input type="checkbox" checked={consultForm.agreePolicy} onChange={e => updateConsult("agreePolicy", e.target.checked)} />
-                          <span>I confirm my health and allergy information is accurate and may be used to tailor my treatment safely.</span>
-                        </div>
-                        <div className="checkbox-item">
-                          <input type="checkbox" checked={consultForm.agreeScope} onChange={e => updateConsult("agreeScope", e.target.checked)} />
-                          <span>I have read and agree to the service scope policy above.</span>
-                        </div>
+            {!bookingType && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}>
+                <span className="section-label">Are you a new or returning client?</span>
+                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                  <button className="btn-gold" onClick={() => setBookingType("new")}>New Client</button>
+                  <button className="btn-outline" onClick={() => setBookingType("returning")}>Returning Client</button>
+                </div>
+              </div>
+            )}
+
+            {bookingType === "new" && (
+              <div style={{ maxWidth: "700px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                  <span className="section-label" style={{ margin: 0 }}>New Client Consultation Form</span>
+                  <button onClick={() => setBookingType(null)} style={{ background: "none", border: "none", color: "var(--stone)", cursor: "pointer", fontSize: "0.75rem", letterSpacing: "0.1em" }}>← Change</button>
+                </div>
+
+                <div className="form-group"><label>Full Name *</label><input value={newForm.name} onChange={e => updateNew("name", e.target.value)} placeholder="Your full name" /></div>
+                <div className="form-group"><label>Email Address *</label><input type="email" value={newForm.email} onChange={e => updateNew("email", e.target.value)} placeholder="email@example.com" /></div>
+                <div className="form-group"><label>Phone Number</label><input value={newForm.phone} onChange={e => updateNew("phone", e.target.value)} placeholder="07..." /></div>
+
+                <div className="form-group">
+                  <label>Preferred Treatment *</label>
+                  <select value={newForm.treatment} onChange={e => updateNew("treatment", e.target.value)}>
+                    <option value="">— Select a treatment —</option>
+                    <optgroup label="Full Body — Female Clients">
+                      <option>Aromatherapy Massage — 60 min £40</option>
+                      <option>Aromatherapy Massage — 90 min £60</option>
+                      <option>Swedish Massage (Full Body) — 60 min £40</option>
+                      <option>Swedish Massage (Full Body) — 90 min £60</option>
+                      <option>Deep Tissue (Full Body) — 60 min £50</option>
+                      <option>Deep Tissue (Full Body) — 90 min £75</option>
+                    </optgroup>
+                    <optgroup label="Back, Neck & Shoulder — All Clients">
+                      <option>Swedish Massage (Back, Neck & Shoulder) — 30 min £30</option>
+                      <option>Swedish Massage (Back, Neck & Shoulder) — 60 min £45</option>
+                      <option>Deep Tissue (Back, Neck & Shoulder) — 30 min £35</option>
+                      <option>Deep Tissue (Back, Neck & Shoulder) — 60 min £50</option>
+                    </optgroup>
+                    <optgroup label="Add-Ons">
+                      <option>Foot Reflexology Add-On — 15 min £15</option>
+                      <option>Foot Reflexology Add-On — 30 min £30</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div className="form-group"><label>Preferred Date &amp; Time</label><input value={newForm.datetime} onChange={e => updateNew("datetime", e.target.value)} placeholder="e.g. Saturday 7 June, afternoon" /></div>
+
+                <div className="form-group">
+                  <label>Massage Pressure Preference</label>
+                  <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+                    {["Light", "Medium", "Firm"].map(p => (
+                      <button key={p} onClick={() => updateNew("pressure", p)} style={{ padding: "0.5rem 1.5rem", background: newForm.pressure === p ? "var(--gold)" : "rgba(201,168,0,0.06)", border: "1px solid rgba(201,168,0,0.3)", color: newForm.pressure === p ? "var(--ink)" : "var(--cream)", cursor: "pointer", fontFamily: "'Jost', sans-serif", fontSize: "0.8rem", letterSpacing: "0.1em", transition: "all 0.2s" }}>{p}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Problem Areas / Focus Areas</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    {["Upper back", "Lower back", "Neck", "Shoulders", "Legs", "Feet", "Arms", "Full body"].map(area => (
+                      <div key={area} className="checkbox-item">
+                        <input type="checkbox" checked={newForm.areas.includes(area)} onChange={e => updateNew("areas", e.target.checked ? [...newForm.areas, area] : newForm.areas.filter(a => a !== area))} />
+                        <span>{area}</span>
                       </div>
-                    </div>
-                    {consultError && <p style={{ color: "#c0614a", fontSize: "0.8rem", marginBottom: "1rem" }}>{consultError}</p>}
-                    <button className="btn-gold" onClick={handleConsult}>Continue to Book →</button>
-                  </>
-                ) : (
-                  <div className="success-msg">✓ &nbsp; Thank you, {consultForm.name}! Your consultation is complete. Please choose your appointment slot on the right.</div>
-                )}
-              </div>
+                    ))}
+                  </div>
+                </div>
 
-              <div id="calendly-step">
-                <span className="section-label" style={{ marginBottom: "1.5rem", display: "block" }}>Step 2 — Choose Your Slot</span>
-                {!consultDone ? (
-                  <div className="calendly-locked">
-                    <p style={{ marginBottom: "0.5rem", color: "var(--gold)" }}>🔒 Complete Step 1 first</p>
-                    <p>Once you've filled in your consultation details and agreed to the terms, your booking calendar will appear here.</p>
+                <div className="form-group">
+                  <label>Known Allergies (oils, nuts, latex, scents)</label>
+                  <input value={newForm.allergies} onChange={e => updateNew("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, latex — or none" />
+                </div>
+
+                <div className="form-group">
+                  <label>Health Conditions — please tick any that apply</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    {["High blood pressure", "Low blood pressure", "Diabetes", "Heart condition", "Cancer / chemotherapy", "Epilepsy", "Osteoporosis", "Blood clots / DVT", "Varicose veins", "Recent surgery", "Skin conditions", "Pregnancy", "Acute injury / inflammation", "Infectious condition", "None of the above"].map(c => (
+                      <div key={c} className="checkbox-item">
+                        <input type="checkbox" checked={newForm.conditions.includes(c)} onChange={e => updateNew("conditions", e.target.checked ? [...newForm.conditions, c] : newForm.conditions.filter(x => x !== c))} />
+                        <span>{c}</span>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div className="calendly-wrap">
-                    <div className="calendly-inline-widget" data-url="https://calendly.com/colqus-biz?hide_gdpr_banner=1&primary_color=c9a800" style={{ minWidth: "320px", height: "700px" }} />
+                </div>
+
+                <div className="form-group">
+                  <label>Anything else we should know?</label>
+                  <textarea value={newForm.notes} onChange={e => updateNew("notes", e.target.value)} placeholder="Any other information that might help us tailor your treatment..." />
+                </div>
+
+                <div className="policy-box">
+                  <strong>Terms &amp; Conditions</strong>
+                  Yellow Wellness provides therapeutic massage services only. All sessions are strictly non-sexual in nature. Any behaviour or request outside the agreed scope will result in immediate termination of the session at full charge. Cancellations must be made at least 24 hours in advance. Late cancellations may incur a 50% charge. No-shows will be charged in full.
+                </div>
+
+                <div className="form-group">
+                  <div className="checkbox-group">
+                    <div className="checkbox-item">
+                      <input type="checkbox" checked={newForm.agreeHealth} onChange={e => updateNew("agreeHealth", e.target.checked)} />
+                      <span>I confirm the health information I have provided is accurate and may be used to tailor my treatment safely.</span>
+                    </div>
+                    <div className="checkbox-item">
+                      <input type="checkbox" checked={newForm.agreeTC} onChange={e => updateNew("agreeTC", e.target.checked)} />
+                      <span>I have read and agree to the Terms &amp; Conditions above.</span>
+                    </div>
                   </div>
-                )}
+                </div>
+
+                {newFormError && <p style={{ color: "#c0614a", fontSize: "0.8rem", marginBottom: "1rem" }}>{newFormError}</p>}
+
+                <a href={buildWhatsAppNew()} onClick={e => { if (!validateNew()) { e.preventDefault(); } }} className="whatsapp-btn" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem", background: "#25D366", color: "#fff", padding: "0.85rem 1.8rem", fontFamily: "'Jost', sans-serif", fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 500, textDecoration: "none", transition: "background 0.3s", marginTop: "0.5rem" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  Send Consultation via WhatsApp
+                </a>
               </div>
-            </div>
+            )}
+
+            {bookingType === "returning" && (
+              <div style={{ maxWidth: "700px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                  <span className="section-label" style={{ margin: 0 }}>Welcome Back!</span>
+                  <button onClick={() => setBookingType(null)} style={{ background: "none", border: "none", color: "var(--stone)", cursor: "pointer", fontSize: "0.75rem", letterSpacing: "0.1em" }}>← Change</button>
+                </div>
+
+                <p className="section-desc" style={{ marginBottom: "2rem" }}>As a returning client you don't need to complete the full consultation again. Just let us know what you'd like and when!</p>
+
+                <div className="form-group"><label>Your Name *</label><input value={retForm.name} onChange={e => updateRet("name", e.target.value)} placeholder="Your name" /></div>
+                <div className="form-group">
+                  <label>Preferred Treatment *</label>
+                  <select value={retForm.treatment} onChange={e => updateRet("treatment", e.target.value)}>
+                    <option value="">— Select a treatment —</option>
+                    <optgroup label="Full Body — Female Clients">
+                      <option>Aromatherapy Massage — 60 min £40</option>
+                      <option>Aromatherapy Massage — 90 min £60</option>
+                      <option>Swedish Massage (Full Body) — 60 min £40</option>
+                      <option>Swedish Massage (Full Body) — 90 min £60</option>
+                      <option>Deep Tissue (Full Body) — 60 min £50</option>
+                      <option>Deep Tissue (Full Body) — 90 min £75</option>
+                    </optgroup>
+                    <optgroup label="Back, Neck & Shoulder — All Clients">
+                      <option>Swedish Massage (Back, Neck & Shoulder) — 30 min £30</option>
+                      <option>Swedish Massage (Back, Neck & Shoulder) — 60 min £45</option>
+                      <option>Deep Tissue (Back, Neck & Shoulder) — 30 min £35</option>
+                      <option>Deep Tissue (Back, Neck & Shoulder) — 60 min £50</option>
+                    </optgroup>
+                    <optgroup label="Add-Ons">
+                      <option>Foot Reflexology Add-On — 15 min £15</option>
+                      <option>Foot Reflexology Add-On — 30 min £30</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div className="form-group"><label>Preferred Date &amp; Time</label><input value={retForm.datetime} onChange={e => updateRet("datetime", e.target.value)} placeholder="e.g. Saturday 7 June, afternoon" /></div>
+                <div className="form-group"><label>Any changes to your health since your last visit?</label><textarea value={retForm.notes} onChange={e => updateRet("notes", e.target.value)} placeholder="e.g. new medication, recent injury, or anything else we should know..." /></div>
+
+                <a href={buildWhatsAppReturning()} className="whatsapp-btn" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem", background: "#25D366", color: "#fff", padding: "0.85rem 1.8rem", fontFamily: "'Jost', sans-serif", fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 500, textDecoration: "none", transition: "background 0.3s", marginTop: "0.5rem" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  Send Booking via WhatsApp
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* FEEDBACK PAGE */}
       {page === "feedback" && (
         <div className="page">
           <div style={{ position: "relative", height: "220px", overflow: "hidden" }}>
@@ -588,7 +704,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <a href="https://wa.me/447700000000" className="whatsapp-btn" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/447394863714" className="whatsapp-btn" target="_blank" rel="noopener noreferrer">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                   Chat on WhatsApp
                 </a>
