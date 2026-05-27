@@ -216,8 +216,6 @@ const StarRating = ({ value, onChange }) => (
 );
 
 export default function App() {
-  const [page, setPage] = useState("home");
-export default function App() {
   const WA_NUMBER = "447394863714";
   const [page, setPage] = useState("home");
   const [bookingType, setBookingType] = useState(null);
