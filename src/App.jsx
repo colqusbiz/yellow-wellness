@@ -458,130 +458,31 @@ export default function App() {
         <div className="page">
           <PageHero img="https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1400&q=80" label="Reserve Your Time" title="Book a Session" />
           <div className="booking-page">
-            <p className="section-desc" style={{ marginBottom: "2rem", textAlign: "center" }}>
-              To book with Yellow Wellness, complete the form below and send via WhatsApp. Your appointment will be confirmed within business hours (11am–8pm daily).
-            </p>
-
-            {!bookingType && (
-              <div style={{ textAlign: "center" }}>
-                <span className="section-label">Are you a new or returning client?</span>
-                <div className="booking-type-btns">
-                  <button className="btn-gold" onClick={() => setBookingType("new")}>New Client</button>
-                  <button className="btn-outline" onClick={() => setBookingType("returning")}>Returning Client</button>
-                </div>
+            <div style={{ maxWidth: "580px", margin: "0 auto", textAlign: "center" }}>
+              <p className="section-desc" style={{ marginBottom: "2rem" }}>
+                All appointments are arranged by WhatsApp. Simply send a message to get started — we will get back to you within business hours to confirm availability.
+              </p>
+              <div style={{ background: "#fffde8", border: "1px solid rgba(201,168,0,0.2)", borderRadius: "4px", padding: "1.8rem 2rem", marginBottom: "2.5rem", textAlign: "left" }}>
+                <p style={{ fontSize: "0.88rem", color: "#5a5040", lineHeight: "1.8", marginBottom: "1.2rem" }}>
+                  <strong style={{ color: "#2c2a20", display: "block", marginBottom: "0.3rem" }}>New clients</strong>
+                  You will be asked to complete a short consultation form before your appointment is confirmed. This helps ensure your treatment is safe, suitable, and tailored to you.
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "#5a5040", lineHeight: "1.8" }}>
+                  <strong style={{ color: "#2c2a20", display: "block", marginBottom: "0.3rem" }}>Returning clients</strong>
+                  Just message to let us know your preferred treatment and date — we will take it from there.
+                </p>
               </div>
-            )}
-
-            {bookingType === "new" && (
-              <div>
-                <button className="back-link" onClick={() => setBookingType(null)}>← Change</button>
-                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", marginBottom: "2rem", color: "var(--ink)" }}>New Client Consultation</h3>
-
-                <div className="form-group"><label>Full Name *</label><input value={newForm.name} onChange={e => uN("name", e.target.value)} placeholder="Your full name" /></div>
-                <div className="form-group"><label>Email Address *</label><input type="email" value={newForm.email} onChange={e => uN("email", e.target.value)} placeholder="email@example.com" /></div>
-                <div className="form-group"><label>Phone Number</label><input value={newForm.phone} onChange={e => uN("phone", e.target.value)} placeholder="07..." /></div>
-                <div className="form-group">
-                  <label>Preferred Treatment *</label>
-                  <select value={newForm.treatment} onChange={e => uN("treatment", e.target.value)}>
-                    <option value="">— Select a treatment —</option>
-                    {TREATMENTS.map(g => (
-                      <optgroup key={g.group} label={g.group}>
-                        {g.items.map(t => <option key={t}>{t}</option>)}
-                      </optgroup>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group"><label>Preferred Date &amp; Time</label><input value={newForm.datetime} onChange={e => uN("datetime", e.target.value)} placeholder="e.g. Saturday 7 June, afternoon" /></div>
-
-                <div className="form-group">
-                  <label>Massage Pressure Preference</label>
-                  <div className="pressure-btns">
-                    {["Light","Medium","Firm"].map(p => (
-                      <button key={p} className={`pressure-btn${newForm.pressure === p ? " active" : ""}`} onClick={() => uN("pressure", p)}>{p}</button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Problem / Focus Areas</label>
-                  <div className="checkbox-grid">
-                    {AREAS.map(a => (
-                      <div key={a} className="checkbox-item">
-                        <input type="checkbox" checked={newForm.areas.includes(a)} onChange={e => uN("areas", e.target.checked ? [...newForm.areas, a] : newForm.areas.filter(x => x !== a))} />
-                        <span>{a}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group"><label>Known Allergies (oils, nuts, latex, scents)</label><input value={newForm.allergies} onChange={e => uN("allergies", e.target.value)} placeholder="e.g. nut oils, lavender, latex — or none" /></div>
-
-                <div className="form-group">
-                  <label>Health Conditions — please tick any that apply</label>
-                  <div className="checkbox-grid">
-                    {CONDITIONS.map(c => (
-                      <div key={c} className="checkbox-item">
-                        <input type="checkbox" checked={newForm.conditions.includes(c)} onChange={e => uN("conditions", e.target.checked ? [...newForm.conditions, c] : newForm.conditions.filter(x => x !== c))} />
-                        <span>{c}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group"><label>Anything else we should know?</label><textarea value={newForm.notes} onChange={e => uN("notes", e.target.value)} placeholder="Any other information that might help us tailor your treatment..." /></div>
-
-                <div className="policy-box">
-                  <strong>Terms &amp; Conditions</strong>
-                  Yellow Wellness provides therapeutic massage services only. All sessions are strictly non-sexual in nature. Any behaviour outside the agreed scope will result in immediate termination at full charge. Cancellations must be made at least 24 hours in advance. Late cancellations may incur a 50% charge. No-shows will be charged in full.
-                </div>
-
-                <div className="form-group">
-                  <div className="checkbox-group">
-                    <div className="checkbox-item">
-                      <input type="checkbox" checked={newForm.agreeHealth} onChange={e => uN("agreeHealth", e.target.checked)} />
-                      <span>I confirm the health information I have provided is accurate and may be used to tailor my treatment safely.</span>
-                    </div>
-                    <div className="checkbox-item">
-                      <input type="checkbox" checked={newForm.agreeTC} onChange={e => uN("agreeTC", e.target.checked)} />
-                      <span>I have read and agree to the Terms &amp; Conditions above.</span>
-                    </div>
-                  </div>
-                </div>
-
-                {newError && <p className="error-msg">{newError}</p>}
-                <a href={waNew()} onClick={e => { if (!validateNew()) e.preventDefault(); }} className="wa-btn" target="_blank" rel="noopener noreferrer">
-                  <WaIcon /> Send Consultation via WhatsApp
-                </a>
-              </div>
-            )}
-
-            {bookingType === "returning" && (
-              <div>
-                <button className="back-link" onClick={() => setBookingType(null)}>← Change</button>
-                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", marginBottom: "0.5rem", color: "var(--ink)" }}>Welcome Back!</h3>
-                <p className="section-desc" style={{ marginBottom: "2rem" }}>As a returning client you don't need to complete the full consultation. Just let us know what you'd like and when.</p>
-                <div className="form-group"><label>Your Name *</label><input value={retForm.name} onChange={e => uR("name", e.target.value)} placeholder="Your name" /></div>
-                <div className="form-group">
-                  <label>Preferred Treatment *</label>
-                  <select value={retForm.treatment} onChange={e => uR("treatment", e.target.value)}>
-                    <option value="">— Select a treatment —</option>
-                    {TREATMENTS.map(g => (
-                      <optgroup key={g.group} label={g.group}>
-                        {g.items.map(t => <option key={t}>{t}</option>)}
-                      </optgroup>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group"><label>Preferred Date &amp; Time</label><input value={retForm.datetime} onChange={e => uR("datetime", e.target.value)} placeholder="e.g. Saturday 7 June, afternoon" /></div>
-                <div className="form-group"><label>Any health changes since your last visit?</label><textarea value={retForm.notes} onChange={e => uR("notes", e.target.value)} placeholder="e.g. new medication, recent injury, or anything else we should know..." /></div>
-                <a href={waRet()} className="wa-btn" target="_blank" rel="noopener noreferrer">
-                  <WaIcon /> Send Booking via WhatsApp
-                </a>
-              </div>
-            )}
+              <a href={`https://wa.me/${WA}?text=${encodeURIComponent("Hi, I'd like to book an appointment at Yellow Wellness.")}`} className="wa-btn" target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.85rem", padding: "1rem 2.5rem", justifyContent: "center", display: "inline-flex" }}>
+                <WaIcon /> Message on WhatsApp
+              </a>
+              <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "#5a5040", letterSpacing: "0.05em" }}>
+                Available daily · 11am–8pm · hello@yellowwellness.co.uk
+              </p>
+            </div>
           </div>
         </div>
       )}
+
 
       {/* REVIEWS */}
       {page === "feedback" && (
